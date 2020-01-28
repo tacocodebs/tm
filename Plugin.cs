@@ -167,7 +167,14 @@ namespace BSPlugin1
         public void OnApplicationStart()
         { }
     }
-
+    private IEnumerator PresentTest()
+    {
+        
+            yield return new WaitForSeconds(1);
+            TestViewController testViewController = BeatSaberUI.CreateViewController<TestViewController>();
+            Resources.FindObjectsOfTypeAll<MainFlowCoordinator>().First().InvokeMethod("PresentViewController", new object[] { testViewController, null, false });
+        
+    }
 
     public class ExampleViewController : BSMLResourceViewController
     {

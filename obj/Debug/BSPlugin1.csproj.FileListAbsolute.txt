@@ -1,0 +1,8 @@
+C:\Users\Owens\Documents\GitHub\BSPlugin1\bin\Debug\BSPlugin1.dll
+C:\Users\Owens\Documents\GitHub\BSPlugin1\bin\Debug\BSPlugin1.pdb
+C:\Users\Owens\Documents\GitHub\BSPlugin1\obj\Debug\BSPlugin1.csprojAssemblyReference.cache
+C:\Users\Owens\Documents\GitHub\BSPlugin1\obj\Debug\BSPlugin1.dll
+C:\Users\Owens\Documents\GitHub\BSPlugin1\obj\Debug\BSPlugin1.pdb
+C:\Users\Owens\Documents\GitHub\BSPlugin1\bin\Debug\BSML.dll
+C:\Users\Owens\Documents\GitHub\BSPlugin1\bin\Debug\BS_Utils.dll
+C:\Users\Owens\Documents\GitHub\BSPlugin1\obj\Debug\BSPlugin1.csproj.CopyComplete

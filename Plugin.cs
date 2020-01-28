@@ -1,192 +1,76 @@
-﻿using System;
+﻿using BS_Utils.Utilities;
+using Harmony;
+using IPA;
+using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using IPA;
-using IPA.Config;
-using IPA.Utilities;
-using Harmony;
-using UnityEngine.SceneManagement;
-using UnityEngine;
-using IPALogger = IPA.Logging.Logger;
 using BeatSaberMarkupLanguage;
-using BeatSaberMarkupLanguage.ViewControllers;
-using BeatSaberMarkupLanguage.Settings;
-using TMPro;
 using BeatSaberMarkupLanguage.Attributes;
+using BeatSaberMarkupLanguage.ViewControllers;
+using TMPro;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using IPALogger = IPA.Logging.Logger;
+using Networking;
+using IPA.Config;
 
 namespace BSPlugin1
 {
-    public class Plugin : IBeatSaberPlugin, IDisablablePlugin
+    public class Plugin : IBeatSaberPlugin
     {
+        internal string SongCoreHarmonyId;
+        public static Config config;
+        internal static object Name;
 
-        // TODO: Change YourGitHub to the name of your GitHub account, or use the form "com.company.project.product"
-        public const string HarmonyId = "com.github.YourGitHub.BSPlugin1";
-        public const string SongCoreHarmonyId = "com.kyle1413.BeatSaber.SongCore";
-        internal static HarmonyInstance harmony;
-        internal static string Name => "BSPlugin1";
-        internal static Ref<PluginConfig> config;
-        internal static IConfigProvider configProvider;
-
-        public void Init(IPALogger logger, [Config.Prefer("json")] IConfigProvider cfgProvider)
-        {
-            Logger.log = logger;
-            Logger.log.Debug("Logger initialized.");
-
-            configProvider = cfgProvider;
-
-            config = configProvider.MakeLink<PluginConfig>((p, v) =>
-            {
-                // Build new config file if it doesn't exist or RegenerateConfig is true
-                if (v.Value == null || v.Value.RegenerateConfig)
-                {
-                    Logger.log.Debug("Regenerating PluginConfig");
-                    p.Store(v.Value = new PluginConfig()
-                    {
-                        // Set your default settings here.
-                        RegenerateConfig = false
-                    });
-                }
-                config = v;
-            });
-            harmony = HarmonyInstance.Create(HarmonyId);
-        }
-        #region IDisablable
-
-        /// <summary>
-        /// Called when the plugin is enabled (including when the game starts if the plugin is enabled).
-        /// </summary>
-        public void OnEnable()
-        {
-            ApplyHarmonyPatches();
-        }
-
-        /// <summary>
-        /// Called when the plugin is disabled. It is important to clean up any Harmony patches, GameObjects, and Monobehaviours here.
-        /// The game should be left in a state as if the plugin was never started.
-        /// </summary>
-        public void OnDisable()
-        {
-            RemoveHarmonyPatches();
-        }
-        #endregion
-
-        /// <summary>
-        /// Attempts to apply all the Harmony patches in this assembly.
-        /// </summary>
-        public static void ApplyHarmonyPatches()
+        public void Init(IPALogger logger)
         {
             try
             {
-                Logger.log.Debug("Applying Harmony patches.");
+                HarmonyInstance harmony = HarmonyInstance.Create("com.blacc.BSPlugin1");
                 harmony.PatchAll(Assembly.GetExecutingAssembly());
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                Logger.log.Critical("Error applying Harmony patches: " + ex.Message);
-                Logger.log.Debug(ex);
+                Logger.log.Error(e.Message);
             }
+
+            Logger.log = logger;
+            BSEvents.menuSceneLoadedFresh += MenuLoadFresh;
         }
 
-        /// <summary>
-        /// Attempts to remove all the Harmony patches that used our HarmonyId.
-        /// </summary>
-        public static void RemoveHarmonyPatches()
+        public void MenuLoadFresh()
         {
-            try
-            {
-                // Removes all patches with this HarmonyId
-                harmony.UnpatchAll(HarmonyId);
-            }
-            catch (Exception ex)
-            {
-                Logger.log.Critical("Error removing Harmony patches: " + ex.Message);
-                Logger.log.Debug(ex);
-            }
+            Resources.FindObjectsOfTypeAll<GameScenesManager>().FirstOrDefault().StartCoroutine(PresentTest());
         }
 
-        /// <summary>
-        /// Called when the active scene is changed.
-        /// </summary>
-        /// <param name="prevScene">The scene you are transitioning from.</param>
-        /// <param name="nextScene">The scene you are transitioning to.</param>
-        public void OnActiveSceneChanged(Scene prevScene, Scene nextScene)
+        public void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode) { }
+        public void OnActiveSceneChanged(Scene prevScene, Scene nextScene) { }
+        public void OnApplicationStart() { }
+        public void OnApplicationQuit() { }
+        public void OnSceneUnloaded(Scene scene) { }
+        public void OnUpdate() { }
+        public void OnFixedUpdate() { }
+
+        private IEnumerator PresentTest()
         {
-            Logger.log.Debug("bh");
-            Logger.log.Debug("ZXC");
-        }
-
-        /// <summary>
-        /// Called when the a scene's assets are loaded.
-        /// </summary>
-        /// <param name="scene"></param>
-        /// <param name="sceneMode"></param>
-        public void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
-        {
-
-
-
-        }
-
-
-        public void OnApplicationQuit()
-        {
-            Logger.log.Debug("OnApplicationQuit");
-
-        }
-
-        /// <summary>
-        /// Runs at a fixed intervalue, generally used for physics calculations. 
-        /// </summary>
-        public void OnFixedUpdate()
-        {
-
-        }
-
-        /// <summary>
-        /// This is called every frame.
-        /// </summary>
-        public void OnUpdate()
-        {
-
-        }
-
-        
-
-        public void OnSceneUnloaded(Scene scene)
-        {
-
-        }
-
-
-        /// <summary>
-        /// This should not be used with an IDisablable plugin. 
-        /// It will not be called if the plugin starts disabled and is enabled while the game is running.
-        /// </summary>
-        public void OnApplicationStart()
-        { }
-    }
-    private IEnumerator PresentTest()
-    {
-        
             yield return new WaitForSeconds(1);
-            TestViewController testViewController = BeatSaberUI.CreateViewController<TestViewController>();
-            Resources.FindObjectsOfTypeAll<MainFlowCoordinator>().First().InvokeMethod("PresentViewController", new object[] { testViewController, null, false });
-        
-    }
+            ExampleViewController exampleViewController = BeatSaberUI.CreateViewController<ExampleViewController>();
+            Resources.FindObjectsOfTypeAll<MainFlowCoordinator>().First().InvokeMethod("PresentViewController", new object[] { exampleViewController, null, false });
+        }
 
-    public class ExampleViewController : BSMLResourceViewController
-    {
-        public override string ResourceName => "example.bsml";
-
-        [UIComponent("some-text")]
-        private TextMeshProUGUI text;
-
-        [UIAction("press")]
-        private void ButtonPress()
+        public class ExampleViewController : BSMLResourceViewController
         {
-            text.text = "Hey look, the text changed";
+            public override string ResourceName => "BSPlugin1.example.bsml";
+
+            [UIComponent("some-text")]
+            private TextMeshProUGUI text;
+
+            [UIAction("press")]
+            private void ButtonPress()
+            {
+                text.text = "Hey look, the text changed";
+            }
         }
     }
 }
